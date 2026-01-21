@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arın'ın Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+        body { font-family: 'JetBrains Mono', monospace; }
+        .log-entry { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200 p-4 min-h-screen">
+
+    <div class="max-w-md mx-auto space-y-6">
+        <!-- Header -->
+        <header class="flex justify-between items-center bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
+            <div>
+                <h1 class="text-xl font-bold text-cyan-400">Arın OS v1.0</h1>
+                <p id="uptime" class="text-[10px] text-slate-500 italic">Sistem yükleniyor...</p>
+            </div>
+            <div class="text-emerald-400">
+                <i data-lucide="cpu" class="w-6 h-6"></i>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                <p class="text-[10px] text-slate-500 uppercase">Bellek</p>
+                <p class="text-lg font-bold">4.2 GB</p>
+            </div>
+            <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-800">
+                <p class="text-[10px] text-slate-500 uppercase">Sıcaklık</p>
+                <p class="text-lg font-bold text-orange-400">38°C</p>
+            </div>
+        </div>
+
+        <!-- Task Manager -->
+        <section class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800">
+            <h2 class="text-sm font-bold mb-4 flex items-center gap-2">
+                <i data-lucide="list-todo" class="w-4 h-4 text-cyan-400"></i> Görevler
+            </h2>
+            <div class="flex gap-2 mb-4">
+                <input id="taskInput" type="text" placeholder="Yeni görev..." class="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500">
+                <button onclick="addTask()" class="bg-cyan-600 px-3 rounded-lg"><i data-lucide="plus" class="w-5 h-5"></i></button>
+            </div>
+            <div id="taskList" class="space-y-2">
+                <!-- Görevler buraya gelecek -->
+            </div>
+        </section>
+
+        <!-- Terminal Log -->
+        <div class="bg-black rounded-xl border border-slate-800 overflow-hidden text-[10px]">
+            <div class="bg-slate-900 px-3 py-1 flex justify-between items-center">
+                <span class="text-slate-400">terminal.log</span>
+                <div class="flex gap-1">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                </div>
+            </div>
+            <div id="terminal" class="p-3 h-32 overflow-y-auto space-y-1 text-emerald-500 font-mono">
+                <div>> Kernel initialization... OK</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Uptime Counter
+        let startTime = Date.now();
+        setInterval(() => {
+            let seconds = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById('uptime').innerText = `Uptime: ${seconds}s`;
+        }, 1000);
+
+        // Task Logic
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            if (!input.value.trim()) return;
+            
+            const list = document.getElementById('taskList');
+            const div = document.createElement('div');
+            div.className = "flex items-center justify-between bg-slate-800/50 p-3 rounded-lg border border-slate-700";
+            div.innerHTML = `
+                <span class="text-sm">${input.value}</span>
+                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            `;
+            list.appendChild(div);
+            lucide.createIcons();
+            input.value = '';
+            addLog(`Görev eklendi: ${input.value}`);
+        }
+
+        // Terminal Logs
+        function addLog(msg) {
+            const term = document.getElementById('terminal');
+            const entry = document.createElement('div');
+            entry.className = "log-entry";
+            entry.innerText = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+            term.appendChild(entry);
+            term.scrollTop = term.scrollHeight;
+        }
+
+        // Random Logs Simulation
+        const msgs = ["Sistem kontrolü yapılıyor", "Network stabil", "Ping: 24ms", "CPU optimizasyonu aktif"];
+        setInterval(() => {
+            addLog(msgs[Math.floor(Math.random() * msgs.length)]);
+        }, 7000);
+    </script>
+</body>
+</html>
